@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Financial Dashboard</title>
+        <link rel="stylesheet" href="./styles.css">
+        <link href="https://db.onlinewebfonts.com/c/14936bb7a4b6575fd2eee80a3ab52cc2?family=Feather+Bold" rel="stylesheet">
+        <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+    </head>
+    <body>
+        <header>
+            <h1 class="company-name" id="company-name"></h1>
+            <h3 class="last-updated" id="last-updated"></h3>
+        </header>
+        <main>
+            <div class="main-display">
+                <div class="sort-and-accounts">
+                    <div class="sort-by">
+                        <label for="myDropdown">Show: &nbsp;</label>
+                        <select id="myDropdown" name="myDropdown" >
+                            <option value="option1">All</option>
+                            <option value="option2">Week</option>
+                            <option value="option3">Month</option>
+                            <option value="option4">3 Months</option>
+                            <option value="option5">6 Months</option>
+                            <option value="option6">Year</option>
+                        </select>
+                    </div>
+                    <div class="accounts-list" id="accounts-list">
+                        <div class="account-list-names" id="all">All</div>
+                    </div>
+                </div>
+                <div class="first-row">
+                    <canvas id="myPieChart" class="pieGraph"></canvas>
+                    <div class="data-flex-right">
+                        <div class="number-stats">
+                            <div class="data-box">
+                                <h3>Income</h3>
+                                <h2 class="" id="income-num"></h2>
+                            </div>
+                            <div class="data-box">
+                                <h3>Expense</h3>
+                                <h2 class="" id="expense-num"></h2>
+                            </div>
+                            <div class="data-box">
+                                <h3>Difference</h3>
+                                <h2 class="" id="difference-num"></h2>
+                            </div>
+                        </div>
+                        <div class="bar-graph">
+                            <canvas id="myLineChart" class="lineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <h3 style="margin: 0; margin-bottom: 10px;">Logged Transactions</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Vendor</th>
+                                <th>Amount</th>
+                                <th>Currency</th>
+                                <th>Date</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+        <script src="script.js"></script>
+        <script>
+            let selectedCategory = "all";
+
+            let data;
+            async function fetchData() {
+                try {
+                    const response = await fetch('data.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    data = await response.json();
+                    fillHeaderData(data);
+                    fillMainDisplay(data);
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            }
+            fetchData();
+
+            document.getElementById("all").addEventListener('click', () => {
+                selectedCategory = "all";
+                if (!data) {
+                    fetchData();
+                }
+                selectedFile(data);
+
+                fillMainDisplay(data);
+            })
+
+            function fillHeaderData(data) {
+                document.getElementById('company-name').textContent = data.company;
+                document.getElementById('last-updated').textContent = data.lastUpdated;
+
+                data.accounts.forEach(element => {
+                    let accName = document.createElement('h4');
+                    accName.className = "account-list-names";
+                    accName.textContent = element.name;
+
+                    accName.addEventListener('click', () => {
+                        selectedCategory = element.accountId;
+                        selectedFile(data);
+
+                        fillMainDisplay(data);
+                    });
+
+                    document.getElementById('accounts-list').append(accName);
+                });
+
+                selectedFile(data);
+            }
+
+            function fillMainDisplay(data) {
+                document.getElementById('tbody').innerHTML = "";
+                let XValues = [];
+                let YValues = [];
+                let lineXValues = [];
+                let lineYValues = [];
+                incomeTotal = 0;
+                expenseTotal = 0;
+                typeCheck = false;
+
+                if (selectedCategory == "all") {
+                    fillAllData(data);
+                    return;
+                }
+
+                data.transactions.forEach(element => {
+                    if (element.accountId == selectedCategory) {
+                        let tableRow = document.createElement('tr');
+                        Object.entries(element).forEach(([key, value]) => {
+                            if (key != "paymentMethod" && key != "accountId") {
+                                let tableData = document.createElement('td');
+
+                                if (key == "type" && value == "Expense") {
+                                    typeCheck = true;
+                                }
+                                if (key == "amount") {
+                                    if (typeCheck) {
+                                        tableData.style.color = "red";
+                                        typeCheck = false
+                                        tableData.textContent = "-$" + value;
+                                    } else {
+                                        tableData.style.color = "green";
+                                        tableData.textContent = "+$" + value;
+                                    }
+                                    
+                                } else {
+                                    tableData.textContent = value;
+                                }
+
+                                tableRow.append(tableData);
+                            }
+                        });
+                        document.getElementById('tbody').append(tableRow);
+
+                        if (element.type == "Expense") {
+                            XValues.push(element.category);
+                            YValues.push(element.amount);
+                        }
+
+                        // DATA NUMS DISPLAY - FIRST ROW
+                        if (element.type == "Income") {
+                            incomeTotal += element.amount;
+                        } else {
+                            expenseTotal += element.amount;
+                        }
+                        lineXValues.push(element.date);
+                        lineYValues.push(incomeTotal - expenseTotal);
+                    }
+                });
+
+                document.getElementById('income-num').textContent = "+$" + Math.round(incomeTotal * 100) / 100;
+                document.getElementById('expense-num').textContent = "-$" + Math.round(expenseTotal * 100) / 100;
+                let diff = document.getElementById('difference-num');
+                if (incomeTotal - expenseTotal > 0) {
+                    diff.style.color = "green";
+                    diff.textContent = "+$"  + Math.round((incomeTotal - expenseTotal) * 100) / 100;
+                } else {
+                    diff.style.color = "red";
+                    diff.textContent = "-$"  + Math.round((incomeTotal - expenseTotal) * 100) / 100;
+                }
+
+                fillPieChart(XValues, YValues);
+                fillLineGraph(lineXValues, lineYValues);
+            }
+
+            const pie = document.getElementById('myPieChart')
+            const barColors = [
+                "#287be7",
+                "#4cc4f3",
+                "#034ea5"
+            ];
+
+            var pieChart = new Chart(pie, {});
+            function fillPieChart(XValues, YValues) {
+                pieChart.destroy();
+                pieChart = new Chart(pie, {
+                    type: "doughnut",
+                    data: {
+                        labels: XValues,
+                        datasets: [{
+                            data: YValues,
+                            backgroundColor: barColors
+                        }]
+                    },
+                });
+            }
+
+            const line = document.getElementById('myLineChart');
+            var lineGraph = new Chart(line, {});
+            function fillLineGraph(XValues, YValues) {
+                lineGraph.destroy();
+                lineGraph = new Chart(line, {
+                type: "line",
+                data: {
+                    labels: XValues,
+                    datasets: [{
+                        data: YValues,
+                        backgroundColor: "#034ea5",
+                        borderColor: "#4cc4f3",
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: "Expenses Line Graph",
+                            font: {size:16}
+                        }
+                    }
+                }});
+            }
+            
+
+            function selectedFile(data) {
+                let list = document.getElementById('accounts-list');
+                // for (let i = 0; i < data.accounts.length; i++) {
+                //     if (selectedCategory == data.accounts[i].accountId) {
+                //         list.children[i].style.backgroundColor = "var(--selected-beige)";
+                //     } else {
+                //         list.children[i].style.backgroundColor = "var(--light-beige)";
+                //     }
+                // }
+            }
+
+            function fillAllData(data) {
+                document.getElementById('tbody').innerHTML = "";
+                let XValues = [];
+                let YValues = [];
+                let lineXValues = [];
+                let lineYValues = [];
+                incomeTotal = 0;
+                expenseTotal = 0;
+                typeCheck = false;
+
+                data.transactions.forEach(element => {
+                    let tableRow = document.createElement('tr');
+                    Object.entries(element).forEach(([key, value]) => {
+                        if (key != "paymentMethod" && key != "accountId") {
+                            let tableData = document.createElement('td');
+
+                            if (key == "type" && value == "Expense") {
+                                typeCheck = true;
+                            }
+                            if (key == "amount") {
+                                if (typeCheck) {
+                                    tableData.style.color = "red";
+                                    typeCheck = false
+                                    tableData.textContent = "-$" + value;
+                                } else {
+                                    tableData.style.color = "green";
+                                    tableData.textContent = "+$" + value;
+                                }
+                                
+                            } else {
+                                tableData.textContent = value;
+                            }
+
+                            tableRow.append(tableData);
+                        }
+                    });
+                    document.getElementById('tbody').append(tableRow);
+
+                    if (element.type == "Expense") {
+                        XValues.push(element.category);
+                        YValues.push(element.amount);
+                    }
+
+                    // DATA NUMS DISPLAY - FIRST ROW
+                    if (element.type == "Income") {
+                        incomeTotal += element.amount;
+                    } else {
+                        expenseTotal += element.amount;
+                    }
+                    lineXValues.push(element.date);
+                    lineYValues.push(incomeTotal - expenseTotal);
+                    
+                });
+
+                document.getElementById('income-num').textContent = "+$" + Math.round(incomeTotal * 100) / 100;
+                document.getElementById('expense-num').textContent = "-$" + Math.round(expenseTotal * 100) / 100;
+                let diff = document.getElementById('difference-num');
+                if (incomeTotal - expenseTotal > 0) {
+                    diff.style.color = "green";
+                    diff.textContent = "+$"  + Math.round((incomeTotal - expenseTotal) * 100) / 100;
+                } else {
+                    diff.style.color = "red";
+                    diff.textContent = "-$"  + Math.round((incomeTotal - expenseTotal) * 100) / 100;
+                }
+
+                fillPieChart(XValues, YValues);
+                fillLineGraph(lineXValues, lineYValues);
+            }
+            
+        </script>
+    </body>
+</html>

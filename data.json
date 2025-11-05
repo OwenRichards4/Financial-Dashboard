@@ -1,0 +1,297 @@
+{
+  "company": "NorthStar Analytics",
+  "lastUpdated": "2025-11-04 | 14:00:00 UTC",
+
+  "accounts": [
+    {
+      "accountId": "ACC001",
+      "name": "Operating Account",
+      "type": "Checking",
+      "balance": 152430.27,
+      "currency": "USD"
+    },
+    {
+      "accountId": "ACC002",
+      "name": "Reserve Fund",
+      "type": "Savings",
+      "balance": 320000.00,
+      "currency": "USD"
+    },
+    {
+      "accountId": "ACC003",
+      "name": "Corporate Credit Card",
+      "type": "Credit",
+      "balance": -4275.92,
+      "limit": 10000,
+      "currency": "USD"
+    }
+  ],
+
+  "transactions": [
+    {
+      "transactionId": "TX001",
+      "accountId": "ACC001",
+      "type": "Expense",
+      "category": "Software Subscription",
+      "vendor": "AWS",
+      "amount": 1850.45,
+      "currency": "USD",
+      "date": "2025-10-31",
+      "paymentMethod": "ACH",
+      "notes": "Monthly cloud infrastructure costs"
+    },
+    {
+      "transactionId": "TX002",
+      "accountId": "ACC001",
+      "type": "Income",
+      "category": "Client Payment",
+      "vendor": "TechNova Inc.",
+      "amount": 12000.00,
+      "currency": "USD",
+      "date": "2025-10-29",
+      "paymentMethod": "Wire Transfer",
+      "notes": "Consulting project invoice #789"
+    },
+    {
+      "transactionId": "TX003",
+      "accountId": "ACC003",
+      "type": "Expense",
+      "category": "Travel",
+      "vendor": "Delta Airlines",
+      "amount": 425.90,
+      "currency": "USD",
+      "date": "2025-10-27",
+      "paymentMethod": "Credit Card",
+      "notes": "Conference trip to Austin"
+    },
+    {
+      "transactionId": "TX004",
+      "accountId": "ACC001",
+      "type": "Expense",
+      "category": "Office Supplies",
+      "vendor": "Staples",
+      "amount": 237.15,
+      "currency": "USD",
+      "date": "2025-10-26",
+      "paymentMethod": "Debit",
+      "notes": "Printer ink and paper restock"
+    },
+    {
+      "transactionId": "TX005",
+      "accountId": "ACC002",
+      "type": "Income",
+      "category": "Interest",
+      "vendor": "Chase Bank",
+      "amount": 412.55,
+      "currency": "USD",
+      "date": "2025-10-01",
+      "paymentMethod": "Auto Deposit",
+      "notes": "Monthly interest accrual"
+    },
+    {
+        "transactionId": "TX006",
+        "accountId": "ACC001",
+        "type": "Expense",
+        "category": "Payroll",
+        "vendor": "Employee Salaries",
+        "amount": 43000.00,
+        "currency": "USD",
+        "date": "2025-10-25",
+        "paymentMethod": "Direct Deposit",
+        "notes": "October payroll distribution"
+    },
+    {
+        "transactionId": "TX007",
+        "accountId": "ACC001",
+        "type": "Expense",
+        "category": "Utilities",
+        "vendor": "Philadelphia Electric Co.",
+        "amount": 620.33,
+        "currency": "USD",
+        "date": "2025-10-20",
+        "paymentMethod": "ACH",
+        "notes": "Monthly power and water bill"
+    },
+    {
+        "transactionId": "TX008",
+        "accountId": "ACC001",
+        "type": "Income",
+        "category": "Client Payment",
+        "vendor": "BrightSystems",
+        "amount": 9800.00,
+        "currency": "USD",
+        "date": "2025-10-15",
+        "paymentMethod": "Wire Transfer",
+        "notes": "Website redesign milestone #2"
+    },
+    {
+        "transactionId": "TX009",
+        "accountId": "ACC003",
+        "type": "Expense",
+        "category": "Marketing",
+        "vendor": "Google Ads",
+        "amount": 1500.00,
+        "currency": "USD",
+        "date": "2025-10-10",
+        "paymentMethod": "Credit Card",
+        "notes": "Ad campaign for Q4 launch"
+    },
+    {
+        "transactionId": "TX010",
+        "accountId": "ACC001",
+        "type": "Expense",
+        "category": "Insurance",
+        "vendor": "Liberty Mutual",
+        "amount": 1230.00,
+        "currency": "USD",
+        "date": "2025-10-05",
+        "paymentMethod": "ACH",
+        "notes": "Quarterly business insurance premium"
+    },
+    {
+        "transactionId": "TX011",
+        "accountId": "ACC001",
+        "type": "Income",
+        "category": "Client Payment",
+        "vendor": "OmniTech Solutions",
+        "amount": 14500.00,
+        "currency": "USD",
+        "date": "2025-09-29",
+        "paymentMethod": "Wire Transfer",
+        "notes": "Software integration contract"
+    },
+    {
+        "transactionId": "TX012",
+        "accountId": "ACC003",
+        "type": "Expense",
+        "category": "Travel",
+        "vendor": "Hilton Hotels",
+        "amount": 980.60,
+        "currency": "USD",
+        "date": "2025-09-25",
+        "paymentMethod": "Credit Card",
+        "notes": "Client meeting stay in New York"
+    },
+    {
+        "transactionId": "TX013",
+        "accountId": "ACC002",
+        "type": "Income",
+        "category": "Interest",
+        "vendor": "Chase Bank",
+        "amount": 408.91,
+        "currency": "USD",
+        "date": "2025-09-01",
+        "paymentMethod": "Auto Deposit",
+        "notes": "Monthly interest accrual"
+    },
+    {
+        "transactionId": "TX014",
+        "accountId": "ACC001",
+        "type": "Expense",
+        "category": "Software Subscription",
+        "vendor": "Microsoft",
+        "amount": 210.00,
+        "currency": "USD",
+        "date": "2025-09-03",
+        "paymentMethod": "ACH",
+        "notes": "Office 365 team license renewal"
+    },
+    {
+        "transactionId": "TX015",
+        "accountId": "ACC001",
+        "type": "Expense",
+        "category": "Equipment",
+        "vendor": "Apple Store",
+        "amount": 3299.00,
+        "currency": "USD",
+        "date": "2025-08-19",
+        "paymentMethod": "Debit",
+        "notes": "New MacBook Pros for developers"
+    },
+    {
+        "transactionId": "TX016",
+        "accountId": "ACC001",
+        "type": "Expense",
+        "category": "Consulting",
+        "vendor": "FinSight Advisors",
+        "amount": 2750.00,
+        "currency": "USD",
+        "date": "2025-08-12",
+        "paymentMethod": "Wire Transfer",
+        "notes": "Quarterly financial audit"
+    },
+    {
+        "transactionId": "TX017",
+        "accountId": "ACC001",
+        "type": "Income",
+        "category": "Client Payment",
+        "vendor": "Skyline Enterprises",
+        "amount": 8300.00,
+        "currency": "USD",
+        "date": "2025-08-08",
+        "paymentMethod": "Wire Transfer",
+        "notes": "UX/UI redesign payment"
+    },
+    {
+        "transactionId": "TX018",
+        "accountId": "ACC003",
+        "type": "Expense",
+        "category": "Marketing",
+        "vendor": "LinkedIn Ads",
+        "amount": 975.50,
+        "currency": "USD",
+        "date": "2025-08-03",
+        "paymentMethod": "Credit Card",
+        "notes": "Recruitment campaign"
+    },
+    {
+        "transactionId": "TX019",
+        "accountId": "ACC001",
+        "type": "Expense",
+        "category": "Maintenance",
+        "vendor": "OfficeWorks",
+        "amount": 415.75,
+        "currency": "USD",
+        "date": "2025-07-29",
+        "paymentMethod": "ACH",
+        "notes": "HVAC repair for HQ"
+    },
+    {
+        "transactionId": "TX020",
+        "accountId": "ACC002",
+        "type": "Income",
+        "category": "Interest",
+        "vendor": "Chase Bank",
+        "amount": 398.50,
+        "currency": "USD",
+        "date": "2025-07-01",
+        "paymentMethod": "Auto Deposit",
+        "notes": "Monthly interest accrual"
+    }
+  ],
+
+  "expenseSummary": {
+    "month": "October 2025",
+    "categories": [
+      { "category": "Software Subscription", "total": 1850.45 },
+      { "category": "Travel", "total": 425.90 },
+      { "category": "Office Supplies", "total": 237.15 },
+      { "category": "Utilities", "total": 620.33 },
+      { "category": "Payroll", "total": 43000.00 }
+    ],
+    "totalExpenses": 45733.83
+  },
+
+  "budget": {
+    "monthlyBudget": 50000.00,
+    "actualSpent": 45733.83,
+    "remaining": 4266.17,
+    "percentUsed": 91.47
+  },
+
+  "monthlySummary": [
+    { "month": "August 2025", "income": 36500.00, "expenses": 42000.00 },
+    { "month": "September 2025", "income": 38800.00, "expenses": 46000.00 },
+    { "month": "October 2025", "income": 41800.00, "expenses": 45733.83 }
+  ]
+}
