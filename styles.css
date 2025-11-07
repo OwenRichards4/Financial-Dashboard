@@ -2,12 +2,21 @@
     --gray: #f0f0f0;
     --dark-gray: #222222;
     --off-white: #e9e9e9;
+    --table-white: #f7f7f7;
     --white: #ffffff;
 
     --skyblue: #4cc4f3;
     --skyblue-hovered: #2d9fe0;
     --dark-blue: #287be7;
     --test: #034ea5;
+}
+
+html {
+    height: 100vh;
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -19,7 +28,8 @@ body {
 
     margin: 0;
 
-    height: 100%;
+    height: 100vh;
+    width: 100%;
 }
 
 header {
@@ -38,6 +48,7 @@ header h1,
 header h3 {
     margin: 10px;
     padding: 0 20px;
+    font-size: 1em;
 }
 
 main {
@@ -45,8 +56,8 @@ main {
 
     height: fit-content;
 
-    width: calc(100% - 40px);
-    padding: 20px;
+    width: calc(100% - 2.5em);
+    padding: 1.25em;
 }
 
 .sort-and-accounts {
@@ -61,6 +72,10 @@ main {
 
     box-shadow: 4px 4px 8px rgba(0,0,0, 0.4);
     border-radius: 8px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 select {
@@ -79,7 +94,7 @@ select {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
 }
 
 .account-list-names {
@@ -93,6 +108,16 @@ select {
 
     box-shadow: 4px 4px 8px rgba(0,0,0, 0.4);
     border-radius: 8px;
+
+    width: clamp(2em, 8em, fit-content);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-list-names:first-child {
+    width: 1.4em;
 }
 
 .account-list-names:hover {
@@ -107,10 +132,12 @@ select {
     height: 95%;
     min-height: 95%;
 
+    width: calc(100%);
+
     display: flex;
     flex-direction: column;
 
-    gap: 12px;
+    gap: 15px;
 }
 
 .table-container {
@@ -120,6 +147,12 @@ select {
     padding: 20px;
 
     border-radius: 8px;
+
+    overflow-x: auto;
+}
+
+.table-container h3 {
+    font-size: 1em;
 }
 
 table {
@@ -130,10 +163,9 @@ table {
 
     border-collapse: collapse;
 
-    padding: 20px;
-
-    border: 1px solid var(--off-white);
     border-radius: 8px;
+
+    font-size: 1em;
 }
 
 thead {
@@ -150,6 +182,11 @@ th {
     color: var(--light-gray);
 }
 
+th:hover {
+    cursor: pointer;
+    color: var(--skyblue)
+}
+
 td {
     padding: 0 10px;
     color: var(--button-hover);
@@ -162,8 +199,17 @@ tr {
 tr:nth-child(odd) {
     background-color: var(--gray);
 }
-tr:nth-child(odd) {
-    background-color: var(--off-white);
+tr:nth-child(even) {
+    background-color: var(--table-white);
+    /* border-left: 1px solid var(--off-white);
+    border-right: 1px solid var(--off-white); */
+}
+
+
+tr td:last-child  {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 thead th:first-child {
@@ -187,7 +233,7 @@ tbody tr:last-child td:last-child {
 .first-row {
     display: flex;
 
-    gap: 12px;
+    gap: 15px;
     width: 100%;
 
     max-height: 500px;
@@ -212,7 +258,7 @@ tbody tr:last-child td:last-child {
     
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 15px;
 
     height: auto;
 }
@@ -224,10 +270,18 @@ tbody tr:last-child td:last-child {
     grid-gap: 15px;
     width: 100%;
     height: auto;
+
+    font-size: 1em;
+}
+
+.number-stat {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .data-box {
-    padding: 10px 12px;
+    padding: 10px 15px;
     background-color: var(--white);
     border-radius: 8px;
     box-shadow: 4px 4px 8px rgba(0,0,0, 0.4);
@@ -255,4 +309,201 @@ tbody tr:last-child td:last-child {
 
 .lineChart {
     max-height: 90%;
+}
+
+.sort-through {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+
+    display: none;
+}
+
+.sort-through ion-icon {
+    font-size: 1.5em;
+    background-color: #287be7;
+    color: white;
+    padding: 7px 10px;
+    
+    box-shadow: 0px 2px 12px rgba(0,0,0, 0.4);
+    border-radius: 8px;
+
+    font-size: 1.7em;
+}
+
+.sort-through ion-icon:hover {
+    cursor: pointer;
+
+    background-color: var(--white);
+    color: black
+}
+
+.spanTitle {
+    margin: 0;
+    background-color: white;
+    padding: 10px 15px;
+
+    box-shadow: 0px 2px 12px rgba(0,0,0, 0.4);
+    border-radius: 8px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.statistic {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.sort-from {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dates-timeline {
+    margin: 0;
+}
+
+
+
+@media (max-width: 1300px) {
+    .pieGraph {
+        max-width: 350px;
+        max-height: 350px;
+    }
+
+    .sort-by label {
+        display: none;
+    }
+
+    .accounts-list {
+        gap: 5px;
+    }
+
+    .account-list-names {
+        width: 100px;
+        font-size: .9em;
+    }
+
+    .sort-through {
+        font-size: 0.9em;
+        gap: 5px;
+    }
+
+    .sort-through ion-icon {
+        font-size: 1.5em;
+    }
+}
+
+@media (max-width: 850px) {
+    .pieGraph {
+        max-width: 200px;
+        max-height: 200px;
+    }
+
+    .account-list-names {
+        width: 80px;
+        font-size: .7em;
+
+        padding: 5px 10px;
+    }
+    
+    .number-stats {
+        font-size: 0.6em;
+    }
+
+    table {
+        font-size: .7em;
+    }
+
+    .sort-through {
+        font-size: 0.7em;
+        gap: 5px;
+    }
+
+    .sort-through ion-icon {
+        padding: 5px;
+        font-size: 1.2em;
+    }
+
+    .spanTitle {
+        padding: 5px 10px;
+    }
+    
+    .sort-by {
+        font-size: 0.7em;
+        padding: 5px 10px;
+    }
+
+    select {
+        width: 80px;
+    }
+
+    main {
+        padding: 10px;
+        width: calc(100% - 20px);
+    }
+
+    .main-display {
+        gap: 10px;
+    }
+
+    .data-box{
+        gap: 5px;
+        font-size: .8em;
+        padding: 5px;
+    }
+
+    .data-flex-right {
+        gap: 10px;
+    }
+
+    .bar-graph {
+        padding: 5px;
+    }
+
+    header h1, header h3{
+        padding: 0px;
+    }
+}
+
+@media (max-width: 500px) {
+    .first-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .pieGraph {
+        max-width: 250px;
+        max-height: 250px;
+
+        width: 100%;
+    }
+
+    .first-row {
+        max-height: none;
+    }
+
+    .number-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .data-flex-right {
+        width: 100%;
+    }
+
+    .account-list-names {
+        width: 40px;
+    }
+
+    .spanTitle {
+        display: none;
+    }
+
+    select {
+        width: 40px;
+    }
 }

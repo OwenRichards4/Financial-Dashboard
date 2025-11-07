@@ -20,15 +20,25 @@
             <div class="main-display">
                 <div class="sort-and-accounts">
                     <div class="sort-by">
-                        <label for="myDropdown">Show: &nbsp;</label>
+                        <label for="myDropdown">Show by date: &nbsp;</label>
                         <select id="myDropdown" name="myDropdown" >
-                            <option value="option1">All</option>
-                            <option value="option2">Week</option>
-                            <option value="option3">Month</option>
-                            <option value="option4">3 Months</option>
-                            <option value="option5">6 Months</option>
-                            <option value="option6">Year</option>
+                            <option value="all">All</option>
+                            <option value="182">6 Months</option>
+                            <option value="90">3 Months</option>
+                            <option value="30">Month</option>
+                            <option value="7">Week</option>
+                            <option value="365">Year</option>
                         </select>
+                    </div>
+                    <div class="sort-from">
+                        <div class="sort-through" id="sort-through">
+                            <ion-icon name="chevron-back-circle-outline" onclick="changeMult(this)"></ion-icon>
+                            <h4 class="spanTitle" id="spanTitle"></h4>
+                            <ion-icon name="chevron-forward-circle-outline" onclick="changeMult(this)"></ion-icon>
+                        </div>
+                        <div class="dates">
+                            <h4 class="dates-timeline" id="dates-timeline"></h4>
+                        </div>
                     </div>
                     <div class="accounts-list" id="accounts-list">
                         <div class="account-list-names" id="all">All</div>
@@ -40,15 +50,18 @@
                         <div class="number-stats">
                             <div class="data-box">
                                 <h3>Income</h3>
-                                <h2 class="" id="income-num"></h2>
+                                <h2 class="number-stat" id="income-num"></h2>
+                                <h4 class="statistic" id="income-stat"></h4>
                             </div>
                             <div class="data-box">
                                 <h3>Expense</h3>
-                                <h2 class="" id="expense-num"></h2>
+                                <h2 class="number-stat" id="expense-num"></h2>
+                                <h4 class="statistic" id="expense-stat"></h4>
                             </div>
                             <div class="data-box">
                                 <h3>Difference</h3>
-                                <h2 class="" id="difference-num"></h2>
+                                <h2 class="number-stat" id="difference-num"></h2>
+                                <h4 class="statistic" id="difference-stat"></h4>
                             </div>
                         </div>
                         <div class="bar-graph">
@@ -61,14 +74,14 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>id</th>
-                                <th>Type</th>
-                                <th>Category</th>
-                                <th>Vendor</th>
-                                <th>Amount</th>
-                                <th>Currency</th>
-                                <th>Date</th>
-                                <th>Note</th>
+                                <th id="transactionId">id</th>
+                                <th id="type">Type</th>
+                                <th id="category">Category</th>
+                                <th id="vendor">Vendor</th>
+                                <th id="amount">Amount</th>
+                                <th id="currency">Currency</th>
+                                <th id="date">Date</th>
+                                <th id="notes">Notes</th>
                             </tr>
                         </thead>
                         <tbody id="tbody"></tbody>
@@ -79,6 +92,19 @@
         <script src="script.js"></script>
         <script>
             let selectedCategory = "all";
+            let selectedSort = "transactionId";
+            let span = 9999;
+            let initCheck = true;
+            let mult = 1;
+            let incomeStat = 0;
+            let expenseStat = 0;
+
+            let XValues = [];
+            let YValues = [];
+
+            document.querySelectorAll('.statistic').forEach(element => {
+                element.style.display = "none";
+            });
 
             let data;
             async function fetchData() {
@@ -98,11 +124,7 @@
 
             document.getElementById("all").addEventListener('click', () => {
                 selectedCategory = "all";
-                if (!data) {
-                    fetchData();
-                }
-                selectedFile(data);
-
+                initCheck = true;
                 fillMainDisplay(data);
             })
 
@@ -117,15 +139,12 @@
 
                     accName.addEventListener('click', () => {
                         selectedCategory = element.accountId;
-                        selectedFile(data);
-
+                        initCheck = true;
                         fillMainDisplay(data);
                     });
 
                     document.getElementById('accounts-list').append(accName);
                 });
-
-                selectedFile(data);
             }
 
             function fillMainDisplay(data) {
@@ -144,7 +163,7 @@
                 }
 
                 data.transactions.forEach(element => {
-                    if (element.accountId == selectedCategory) {
+                    if (element.accountId == selectedCategory && checkDays(element.date)) {
                         let tableRow = document.createElement('tr');
                         Object.entries(element).forEach(([key, value]) => {
                             if (key != "paymentMethod" && key != "accountId") {
@@ -157,12 +176,87 @@
                                     if (typeCheck) {
                                         tableData.style.color = "red";
                                         typeCheck = false
-                                        tableData.textContent = "-$" + value;
+                                        tableData.textContent = "-$" + numStyling(value);
                                     } else {
                                         tableData.style.color = "green";
-                                        tableData.textContent = "+$" + value;
+                                        tableData.textContent = "+$" + numStyling(value);
                                     }
-                                    
+                                } else {
+                                    tableData.textContent = value;
+                                }
+
+                                tableRow.append(tableData);
+                            }
+                        });
+                        document.getElementById('tbody').append(tableRow);
+
+                        if (element.type == "Expense") {
+                            XValues.push(element.category);
+                            YValues.push(element.amount);
+                        } else if (element.type == "Income" && selectedCategory == "ACC002") {
+                            XValues.push(element.category);
+                            YValues.push(element.amount);
+                        }
+
+                        // DATA NUMS DISPLAY - FIRST ROW
+                        if (element.type == "Income") {
+                            incomeTotal += element.amount;
+                        } else {
+                            expenseTotal += element.amount;
+                        }
+                        lineXValues.push(element.date);
+                        lineYValues.push(incomeTotal - expenseTotal);
+                    }
+                });
+
+                document.getElementById('income-num').textContent = "+$" + numStyling(Math.round(incomeTotal * 100) / 100);
+                document.getElementById('expense-num').textContent = "-$" + numStyling(Math.round(expenseTotal * 100) / 100);
+                let diff = document.getElementById('difference-num');
+                if (incomeTotal - expenseTotal > 0) {
+                    diff.style.color = "green";
+                    diff.textContent = "+$"  + numStyling(Math.round((incomeTotal - expenseTotal) * 100) / 100);
+                } else {
+                    diff.style.color = "red";
+                    diff.textContent = "-$"  + numStyling(Math.abs(Math.round((incomeTotal - expenseTotal) * 100) / 100));
+                }
+                
+                if (initCheck) {
+                    initCheck = false;
+                    fillPieChart(XValues, YValues);
+                    fillLineGraph(lineXValues, lineYValues);
+                    
+                }
+            }
+
+            function fillAllData(data) {
+                document.getElementById('tbody').innerHTML = "";
+                XValues = [];
+                YValues = [];
+                let lineXValues = [];
+                let lineYValues = [];
+                incomeTotal = 0;
+                expenseTotal = 0;
+                typeCheck = false;
+
+                data.transactions.forEach(element => {
+                    if (checkDays(element.date)) {
+                        let tableRow = document.createElement('tr');
+                        Object.entries(element).forEach(([key, value]) => {
+                            if (key != "paymentMethod" && key != "accountId") {
+                                let tableData = document.createElement('td');
+
+                                if (key == "type" && value == "Expense") {
+                                    typeCheck = true;
+                                }
+                                if (key == "amount") {
+                                    if (typeCheck) {
+                                        tableData.style.color = "red";
+                                        typeCheck = false
+                                        tableData.textContent = "-$" + numStyling(value);
+                                    } else {
+                                        tableData.style.color = "green";
+                                        tableData.textContent = "+$" + numStyling(value);
+                                    }
                                 } else {
                                     tableData.textContent = value;
                                 }
@@ -188,20 +282,39 @@
                     }
                 });
 
-                document.getElementById('income-num').textContent = "+$" + Math.round(incomeTotal * 100) / 100;
-                document.getElementById('expense-num').textContent = "-$" + Math.round(expenseTotal * 100) / 100;
+                document.getElementById('income-num').textContent = "+$" + numStyling(Math.round(incomeTotal * 100) / 100);
+                document.getElementById('expense-num').textContent = "-$" + numStyling(Math.round(expenseTotal * 100) / 100);
                 let diff = document.getElementById('difference-num');
                 if (incomeTotal - expenseTotal > 0) {
                     diff.style.color = "green";
-                    diff.textContent = "+$"  + Math.round((incomeTotal - expenseTotal) * 100) / 100;
+                    diff.textContent = "+$"  + numStyling(Math.round((incomeTotal - expenseTotal) * 100) / 100);
                 } else {
                     diff.style.color = "red";
-                    diff.textContent = "-$"  + Math.round((incomeTotal - expenseTotal) * 100) / 100;
+                    diff.textContent = "-$"  + numStyling(Math.abs(Math.round((incomeTotal - expenseTotal) * 100) / 100));
                 }
 
-                fillPieChart(XValues, YValues);
-                fillLineGraph(lineXValues, lineYValues);
+                if (initCheck) {
+                    initCheck = false;
+                    fillPieChart(XValues, YValues);
+                    fillLineGraph(lineXValues, lineYValues);
+                }
             }
+
+
+            document.querySelectorAll('th').forEach(element => {
+                element.addEventListener('click', () => {
+                    let type;
+                    if (element.textContent == "id") {
+                        type = "transactionId";
+                    } else {
+                        type = element.textContent.toLowerCase();
+                    }
+                    document.getElementById(`${selectedSort}`).style.color = "var(--white)";
+                    selectedSort = type;
+                    sortTable(type, data);
+                });
+            });
+
 
             const pie = document.getElementById('myPieChart')
             const barColors = [
@@ -222,6 +335,18 @@
                             backgroundColor: barColors
                         }]
                     },
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: "Expenses Pie Graph",
+                                font: {size:16}
+                            }
+                        }
+                    }
                 });
             }
 
@@ -250,91 +375,248 @@
                             text: "Expenses Line Graph",
                             font: {size:16}
                         }
+                    },
+                    onResize: function(chart, newSize) {
+                        if (newSize.width < 768) {
+                            chart.options.scales.x.ticks.display = false;
+                        } else {
+                            chart.options.scales.x.ticks.display = true;
+                        }
+                        chart.update();
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                display: true
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
                     }
                 }});
             }
-            
 
-            function selectedFile(data) {
-                let list = document.getElementById('accounts-list');
-                // for (let i = 0; i < data.accounts.length; i++) {
-                //     if (selectedCategory == data.accounts[i].accountId) {
-                //         list.children[i].style.backgroundColor = "var(--selected-beige)";
-                //     } else {
-                //         list.children[i].style.backgroundColor = "var(--light-beige)";
-                //     }
-                // }
-            }
+            function sortTable(sort, data) {
+                if (sort == "amount") {
+                    data.transactions.sort((a,b) => b[sort] - a[sort]);
+                } else {
+                    data.transactions.sort((a, b) => {
+                        const nameA = a[sort].toUpperCase();
+                        const nameB = b[sort].toUpperCase();
 
-            function fillAllData(data) {
-                document.getElementById('tbody').innerHTML = "";
-                let XValues = [];
-                let YValues = [];
-                let lineXValues = [];
-                let lineYValues = [];
-                incomeTotal = 0;
-                expenseTotal = 0;
-                typeCheck = false;
-
-                data.transactions.forEach(element => {
-                    let tableRow = document.createElement('tr');
-                    Object.entries(element).forEach(([key, value]) => {
-                        if (key != "paymentMethod" && key != "accountId") {
-                            let tableData = document.createElement('td');
-
-                            if (key == "type" && value == "Expense") {
-                                typeCheck = true;
-                            }
-                            if (key == "amount") {
-                                if (typeCheck) {
-                                    tableData.style.color = "red";
-                                    typeCheck = false
-                                    tableData.textContent = "-$" + value;
-                                } else {
-                                    tableData.style.color = "green";
-                                    tableData.textContent = "+$" + value;
-                                }
-                                
-                            } else {
-                                tableData.textContent = value;
-                            }
-
-                            tableRow.append(tableData);
+                        if (nameA < nameB) {
+                            return -1;
+                        }
+                        if (nameA > nameB) {
+                            return 1;
                         }
                     });
-                    document.getElementById('tbody').append(tableRow);
-
-                    if (element.type == "Expense") {
-                        XValues.push(element.category);
-                        YValues.push(element.amount);
-                    }
-
-                    // DATA NUMS DISPLAY - FIRST ROW
-                    if (element.type == "Income") {
-                        incomeTotal += element.amount;
-                    } else {
-                        expenseTotal += element.amount;
-                    }
-                    lineXValues.push(element.date);
-                    lineYValues.push(incomeTotal - expenseTotal);
-                    
-                });
-
-                document.getElementById('income-num').textContent = "+$" + Math.round(incomeTotal * 100) / 100;
-                document.getElementById('expense-num').textContent = "-$" + Math.round(expenseTotal * 100) / 100;
-                let diff = document.getElementById('difference-num');
-                if (incomeTotal - expenseTotal > 0) {
-                    diff.style.color = "green";
-                    diff.textContent = "+$"  + Math.round((incomeTotal - expenseTotal) * 100) / 100;
-                } else {
-                    diff.style.color = "red";
-                    diff.textContent = "-$"  + Math.round((incomeTotal - expenseTotal) * 100) / 100;
                 }
-
-                fillPieChart(XValues, YValues);
-                fillLineGraph(lineXValues, lineYValues);
+                
+                document.getElementById(`${sort}`).style.color = "var(--skyblue)";
+                fillMainDisplay(data);
             }
             
+            let dropdown = document.getElementById('myDropdown');
+            dropdown.addEventListener('change', () => {
+                mult = 1;
+                if (dropdown.value == "all") {
+                    span = 99999
+                    document.querySelectorAll('.statistic').forEach(element => {
+                        element.style.display = "none";
+                    });
+                    document.getElementById('sort-through').style.display = "none";
+                    document.getElementById('spanTitle').textContent = "";
+                    document.getElementById('dates-timeline').textContent = "";
+                } else {
+                    span = Number(dropdown.value);
+                    document.querySelectorAll('.statistic').forEach(element => {
+                        element.style.display = "block";
+                    });
+                    document.getElementById('sort-through').style.display = "flex";
+                    document.getElementById('spanTitle').textContent = dropdown.value;
+                    changeDateText();
+                }
+
+                if (mult == 1) {
+                    if (dropdown.value == 7) {
+                        document.getElementById('spanTitle').textContent = "Week";
+                    } else if (dropdown.value == 30) {
+                        document.getElementById('spanTitle').textContent = "Month";
+                    } else if (dropdown.value == 90) {
+                        document.getElementById('spanTitle').textContent = "3 Months";
+                    } else if (dropdown.value == 182) {
+                        document.getElementById('spanTitle').textContent = "6 Months";
+                    } else if (dropdown.value == 365) {
+                        document.getElementById('spanTitle').textContent = "Year";
+                    }
+                }
+
+
+                fillMainDisplay(data);
+                getPrevStat(data);
+            });
+
+
+            function getPrevStat(data) {
+                mult += 1;
+                data.transactions.forEach(element => {
+                    if (checkDays(element.date)) {
+                        if (element.type == "Income") {
+                            incomeStat += element.amount;
+                        } else if (element.type == "Expense") {
+                            expenseStat += element.amount;
+                        }
+                    }
+                });
+                mult -= 1;
+                let diffStat = incomeStat - expenseStat;
+
+                let currIncome = document.getElementById('income-num').textContent;
+                let currExpense = document.getElementById('expense-num').textContent;
+                let currDiff = document.getElementById('difference-num').textContent;
+
+                currIncome = Number(currIncome.slice(2, currIncome.length).replace(",", ""));
+                currExpense = Number(currExpense.slice(2, currExpense.length).replace(",", ""));
+                currDiff = Number(currDiff.slice(2, currDiff.length).replace(",", ""));
+
+                if (incomeStat != 0) {
+                    let incomeStatText = Math.round((((currIncome - Math.abs(incomeStat))/Math.abs(incomeStat)) * 100)  * 100) / 100;
+                    if (incomeStatText > 0) {
+                        incomeStatText = "+" + incomeStatText;
+                        document.getElementById('income-stat').style.color = "green";
+                    } else  {
+                        document.getElementById('income-stat').style.color = "red";
+                    }
+                    document.getElementById('income-stat').textContent = incomeStatText + "%";
+                } else {
+                    document.getElementById('income-stat').style.color = "green";
+                    document.getElementById('income-stat').textContent = "+100%"
+                }
+                
+                if (expenseStat != 0) {
+                    let expenseStatText = Math.round((((currExpense - Math.abs(expenseStat))/Math.abs(expenseStat)) * 100) * 100) / 100;
+                    if (expenseStatText > 0) {
+                        expenseStatText = "-" + expenseStatText;
+                        document.getElementById('expense-stat').style.color = "red";
+                    } else  {
+                        expenseStatText = String(expenseStatText);
+                        expenseStatText = "+" + expenseStatText.slice(1, expenseStatText.length)
+                        document.getElementById('expense-stat').style.color = "green";
+                    }
+                    document.getElementById('expense-stat').textContent = expenseStatText + "%";
+                } else {
+                    document.getElementById('expense-stat').style.color = "red";
+                    document.getElementById('expense-stat').textContent = "+100%"
+                }
+                if (diffStat != 0) {
+                    let differenceStatText = Math.round((((currDiff - Math.abs(diffStat))/Math.abs(diffStat)) * 100) * 100) / 100;
+                    if (differenceStatText > 0) {
+                        differenceStatText = "+" + differenceStatText;
+                        document.getElementById('difference-stat').style.color = "green";
+                    } else  {
+                        document.getElementById('difference-stat').style.color = "red";
+                    }
+                    document.getElementById('difference-stat').textContent = differenceStatText + "%";
+                } else {
+                    document.getElementById('difference-stat').style.color = "green";
+                    document.getElementById('difference-stat').textContent = "+100%"
+                }
+
+                incomeStat = 0;
+                expenseStat = 0;
+            }
+
+            let d2;
+            let oneDayInMilliseconds = 1000 * 60 * 60 * 24;
+            function checkDays(startDate) {
+                // STANDARD
+                // const now = new Date();
+                // const year = now.getFullYear();
+                // const month = now.getMonth() + 1;
+                // const day = now.getDate();
+
+                // BECAUSE THE DATABASE ISNT ACTUALLY BEING UPDATED
+                const year = 2025;
+                const month = 11;
+                const day = 4;
+
+                const endDate = `${year}-${month}-${day}`;
+
+                d2 = new Date(endDate)
+
+                let d1 = new Date(startDate);
+
+                let diffInMilliseconds = d2.getTime() - d1.getTime();
+                let diffInDays = Math.round(diffInMilliseconds / oneDayInMilliseconds);
+
+                initCheck = true;
+                
+                if (diffInDays > span * (mult - 1) && diffInDays <= (span * mult)) {
+                    return true;
+                }
+                return false;
+            }
+
+            function changeDateText() {
+                // const now = new Date();
+                // const year = now.getFullYear();
+                // const month = now.getMonth() + 1;
+                // const day = now.getDate();
+
+                // let date;
+                // let firstDate;
+
+                // if (span == 7) {
+                //     date = `${month}-${day - ((mult - 1) * 7)}-${year}`;
+                //     firstDate = `${month}-${day - (mult * 7)}-${year}`;
+                // } else if (span == 30) {
+                //     date = `${month - ((mult - 1) * 1)}-${day}-${year}`;
+                //     firstDate = `${month - (mult * 1)}-${day}-${year}`;
+                // } else if (span == 90) {
+                //     date = `${month - ((mult - 1) * 3)}-${day}-${year}`;
+                //     firstDate = `${month - (mult * 3)}-${day}-${year}`;
+                // } else if (span == 182) {
+                //     date = `${month - ((mult - 1) * 6)}-${day}-${year}`;
+                //     firstDate = `${month - (mult * 6)}-${day}-${year}`;
+                // } else if (span == 365) {
+                //     date = `${month}-${day}-${year - ((mult - 1) * 2)}`;
+                //     firstDate = `${month}-${day}-${year - (mult * 2)}`;
+                // }
+
+                // document.getElementById('dates-timeline').textContent = firstDate + " - " + date;
+                return;
+            }
+
+            function numStyling(num) {
+                let formatedNum = num.toLocaleString()
+                if (formatedNum.includes(".")) {
+                    let split = formatedNum.split(".");
+                    if (split[1].length == 1) {
+                        formatedNum += "0"
+                    }
+                }
+                return formatedNum;
+            }
+
+            function changeMult(ele) {
+                if (ele.name == "chevron-back-circle-outline") {
+                    if (mult != 1) {
+                        mult -= 1;
+
+                        changeDateText();
+                        fillMainDisplay(data);
+                        getPrevStat(data);
+                    }
+                } else {
+                    mult += 1;
+
+                    changeDateText();
+                    fillMainDisplay(data);
+                    getPrevStat(data);
+                }
+            }
         </script>
     </body>
 </html>
