@@ -23,11 +23,11 @@
                         <label for="myDropdown">Show by date: &nbsp;</label>
                         <select id="myDropdown" name="myDropdown" >
                             <option value="all">All</option>
+                            <option value="365">Year</option>
                             <option value="182">6 Months</option>
                             <option value="90">3 Months</option>
                             <option value="30">Month</option>
                             <option value="7">Week</option>
-                            <option value="365">Year</option>
                         </select>
                     </div>
                     <div class="sort-from">
@@ -89,9 +89,7 @@
                 </div>
             </div>
         </main>
-        <script src="script.js"></script>
         <script>
-            let selectedCategory = "all";
             let selectedSort = "transactionId";
             let span = 9999;
             let initCheck = true;
@@ -101,6 +99,10 @@
 
             let XValues = [];
             let YValues = [];
+
+            if (localStorage.getItem("selectedCategory") == "") {
+                localStorage.setItem("selectedCategory", "all")
+            }
 
             document.querySelectorAll('.statistic').forEach(element => {
                 element.style.display = "none";
@@ -123,7 +125,7 @@
             fetchData();
 
             document.getElementById("all").addEventListener('click', () => {
-                selectedCategory = "all";
+                localStorage.setItem("selectedCategory", "all");
                 initCheck = true;
                 fillMainDisplay(data);
             })
@@ -138,7 +140,7 @@
                     accName.textContent = element.name;
 
                     accName.addEventListener('click', () => {
-                        selectedCategory = element.accountId;
+                        localStorage.setItem("selectedCategory", `${element.accountId}`);
                         initCheck = true;
                         fillMainDisplay(data);
                     });
@@ -157,13 +159,13 @@
                 expenseTotal = 0;
                 typeCheck = false;
 
-                if (selectedCategory == "all") {
+                if (localStorage.getItem("selectedCategory") == "all") {
                     fillAllData(data);
                     return;
                 }
 
                 data.transactions.forEach(element => {
-                    if (element.accountId == selectedCategory && checkDays(element.date)) {
+                    if (element.accountId == localStorage.getItem("selectedCategory") && checkDays(element.date)) {
                         let tableRow = document.createElement('tr');
                         Object.entries(element).forEach(([key, value]) => {
                             if (key != "paymentMethod" && key != "accountId") {
@@ -193,7 +195,7 @@
                         if (element.type == "Expense") {
                             XValues.push(element.category);
                             YValues.push(element.amount);
-                        } else if (element.type == "Income" && selectedCategory == "ACC002") {
+                        } else if (element.type == "Income" && localStorage.getItem("selectedCategory") == "ACC002") {
                             XValues.push(element.category);
                             YValues.push(element.amount);
                         }
@@ -372,7 +374,7 @@
                         },
                         title: {
                             display: true,
-                            text: "Expenses Line Graph",
+                            text: "Income/Expenses Line Graph",
                             font: {size:16}
                         }
                     },
@@ -393,7 +395,9 @@
                         y: {
                             beginAtZero: true
                         }
-                    }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
                 }});
             }
 
@@ -617,6 +621,36 @@
                     getPrevStat(data);
                 }
             }
+
+            // let lastSize;
+            // if (window.innerWidth <= 1920 && window.innerWidth > 1300) {
+            //     lastSize = 1920;
+            // } else if (window.innerWidth <= 1300 && window.innerWidth > 850) {
+            //     lastSize = 1300;
+            // } else if (window.innerWidth <= 850 && window.innerWidth > 500) {
+            //     lastSize = 850;
+            // } else if (window.innerWidth <= 500) {
+            //     lastSize = 500;
+            // } 
+            // console.log(lastSize)
+            // window.addEventListener('resize', function () {
+            //     let currSize = window.innerWidth;
+            //     // RESIZE WHEN AT LISTEN NUMBERS IN CSS BASED OF CURRSIZE 1300px 850px 500px
+            //     console.log(currSize, lastSize);
+            //     if (window.innerWidth <= 1920 && window.innerWidth > 1300 && lastSize != 1920) {
+            //         lastSize = 1920;
+            //         window.location.reload();
+            //     } else if (window.innerWidth <= 1300 && window.innerWidth > 850 && lastSize != 1300) {
+            //         lastSize = 1300;
+            //         window.location.reload();
+            //     } else if (window.innerWidth <= 850 && window.innerWidth > 500 && lastSize != 850) {
+            //         lastSize = 850;
+            //         window.location.reload();
+            //     } else if (window.innerWidth <= 500 && lastSize != 500) {
+            //         lastSize = 500;
+            //         window.location.reload();
+            //     } 
+            // });
         </script>
     </body>
 </html>
