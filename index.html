@@ -100,7 +100,7 @@
             let XValues = [];
             let YValues = [];
 
-            if (localStorage.getItem("selectedCategory") == "") {
+            if (localStorage.getItem("selectedCategory") == null) {
                 localStorage.setItem("selectedCategory", "all")
             }
 
